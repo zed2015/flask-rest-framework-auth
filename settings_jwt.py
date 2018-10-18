@@ -3,7 +3,7 @@ import datetime
 from .settings import APISettings, settings
 
 
-USER_SETTINGS = getattr(settings, 'JWT_AUTH', None)
+USER_SETTINGS = getattr(settings, 'JWT_AUTH', {})
 
 DEFAULTS = {
     'JWT_ENCODE_HANDLER':
@@ -30,7 +30,7 @@ DEFAULTS = {
     'JWT_RESPONSE_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_response_payload_handler',
 
-    'JWT_SECRET_KEY': settings.SECRET_KEY,
+    # 'JWT_SECRET_KEY': settings.SECRET_KEY,
     'JWT_GET_USER_SECRET_KEY': None,
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY': True,

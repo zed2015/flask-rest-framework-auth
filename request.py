@@ -10,9 +10,9 @@ The wrapped request then offers a richer API, in particular :
 """
 from __future__ import unicode_literals
 
-import io
 import sys
 from contextlib import contextmanager
+from .settings import api_settings
 
 import six
 
@@ -133,7 +133,6 @@ class ForcedAuthentication(object):
         return (self.force_user, self.force_token)
 
 from flask import Request as FlaskRequest, current_app
-from werkzeug.local import LocalProxy
 from . import exceptions
 
 
@@ -276,7 +275,6 @@ class Request(object):
         )
         return any([parser.media_type in form_media for parser in self.parsers])
 
-
     def _authenticate(self):
         """
         Attempt to authenticate the request using each authentication instance
@@ -301,10 +299,18 @@ class Request(object):
 
         Defaults are None, AnonymousUser & None.
         """
-        self._authenticator = None
-        self.user, self.auth = None, None
-        return None, None
 
+        self._authenticator = None
+
+        if api_settings.UNAUTHENTICATED_USER:
+            self.user = api_settings.UNAUTHENTICATED_USER()
+        else:
+            self.user = None
+
+        if api_settings.UNAUTHENTICATED_TOKEN:
+            self.auth = api_settings.UNAUTHENTICATED_TOKEN()
+        else:
+            self.auth = None
 
     def __getattr__(self, attr):
         """
@@ -315,7 +321,6 @@ class Request(object):
             return getattr(self._request, attr)
         except AttributeError:
             return self.__getattribute__(attr)
-
 
     def force_plaintext_errors(self, value):
         # Hack to allow our exception handler to force choice of

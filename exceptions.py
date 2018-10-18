@@ -254,3 +254,6 @@ class Throttled(APIException):
 #         'error': 'Bad Request (400)'
 #     }
 #     return JsonResponse(data, status=status.HTTP_400_BAD_REQUEST)
+class ImproperlyConfigured(Exception):
+    """not correct configure"""
+    pass

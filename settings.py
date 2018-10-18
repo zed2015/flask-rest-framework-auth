@@ -21,18 +21,39 @@ back to the defaults.
 from __future__ import unicode_literals
 
 from importlib import import_module
-
+import os
 import six
 from flask import current_app
 from . import ISO_8601
+from .exceptions import ImproperlyConfigured
+from flask import Config
+from werkzeug.utils import import_string
 
+
+ENVIRONMENT_VARIABLE = "FLASK_SETTINGS_MODULE"
 
 class Settings(object):
     """使其兼容 django 的settings模式"""
+    def __init__(self):
+        self.settings = None
+
+    def _setup(self, name=None):
+        settings_module = os.environ.get(ENVIRONMENT_VARIABLE)
+        if not settings_module:
+            desc = ("setting %s" % name) if name else "settings"
+            raise ImproperlyConfigured(
+                "Requested %s, but settings are not configured. "
+                "You must either define the environment variable %s "
+                "or call settings.configure() before accessing settings."
+                % (desc, ENVIRONMENT_VARIABLE))
+        self.settings = import_string(settings_module)
+
     def __getattr__(self, item):
+        if not self.settings:
+            self._setup()
         try:
-            current_app.config[item]
-        except KeyError:
+            getattr(self.settings, item)
+        except AttributeError:
             msg = '{} is not exist'.format(item)
             raise AttributeError(msg)
 
@@ -90,7 +111,7 @@ DEFAULTS = {
     'VERSION_PARAM': 'version',
 
     # Authentication
-    'UNAUTHENTICATED_USER': 'django.contrib.auth.models.AnonymousUser',
+    'UNAUTHENTICATED_USER': 'flask_login.AnonymousUserMixin',
     'UNAUTHENTICATED_TOKEN': None,
 
     # View configuration
@@ -218,7 +239,7 @@ class APISettings(object):
 
     @property
     def user_settings(self):
-        if not hasattr(self, '_user_settings'):
+        if not self._user_settings:
             self._user_settings = getattr(settings, 'REST_FRAMEWORK', {})
         return self._user_settings
 
