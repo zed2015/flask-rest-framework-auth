@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from . import exceptions
 from flask import g, current_app
 from flask_login import current_user
+from .settings_jwt import api_settings as api_settings_jwt
 from .settings import api_settings
 from itsdangerous import TimedJSONWebSignatureSerializer as JWT
 from itsdangerous import SignatureExpired, BadSignature
@@ -134,7 +135,7 @@ class JSONWebTokenAuthentication(BaseJSONWebTokenAuthentication):
     def get_jwt_value(self, request):
         auth = get_authorization_header(request).split(None, 1)
 
-        auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX
+        auth_header_prefix = api_settings_jwt.JWT_AUTH_HEADER_PREFIX
 
         if not auth:
             # if api_settings.JWT_AUTH_COOKIE:
@@ -159,7 +160,7 @@ class JSONWebTokenAuthentication(BaseJSONWebTokenAuthentication):
         header in a `401 Unauthenticated` response, or `None` if the
         authentication scheme should return `403 Permission Denied` responses.
         """
-        return '{0} realm="{1}"'.format(api_settings.JWT_AUTH_HEADER_PREFIX, self.www_authenticate_realm)
+        return '{0} realm="{1}"'.format(api_settings_jwt.JWT_AUTH_HEADER_PREFIX, self.www_authenticate_realm)
 
 # class TokenAuthentication(BaseAuthentication):
 #     """
