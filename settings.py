@@ -30,35 +30,36 @@ from flask import Config
 from werkzeug.utils import import_string
 
 
-ENVIRONMENT_VARIABLE = "FLASK_SETTINGS_MODULE"
-
-class Settings(object):
-    """使其兼容 django 的settings模式"""
-    def __init__(self):
-        self.settings = None
-
-    def _setup(self, name=None):
-        settings_module = os.environ.get(ENVIRONMENT_VARIABLE)
-        if not settings_module:
-            desc = ("setting %s" % name) if name else "settings"
-            raise ImproperlyConfigured(
-                "Requested %s, but settings are not configured. "
-                "You must either define the environment variable %s "
-                "or call settings.configure() before accessing settings."
-                % (desc, ENVIRONMENT_VARIABLE))
-        self.settings = import_string(settings_module)
-
-    def __getattr__(self, item):
-        if not self.settings:
-            self._setup()
-        try:
-            getattr(self.settings, item)
-        except AttributeError:
-            msg = '{} is not exist'.format(item)
-            raise AttributeError(msg)
-
-
-settings = Settings()
+# ENVIRONMENT_VARIABLE = "FLASK_SETTINGS_MODULE"
+#
+# class Settings(object):
+#     """使其兼容 django 的settings模式"""
+#     def __init__(self):
+#         self.settings = None
+#
+#     def _setup(self, name=None):
+#         settings_module = os.environ.get(ENVIRONMENT_VARIABLE)
+#         if not settings_module:
+#             desc = ("setting %s" % name) if name else "settings"
+#             raise ImproperlyConfigured(
+#                 "Requested %s, but settings are not configured. "
+#                 "You must either define the environment variable %s "
+#                 "or call settings.configure() before accessing settings."
+#                 % (desc, ENVIRONMENT_VARIABLE))
+#         self.settings = import_string(settings_module)
+#
+#     def __getattr__(self, item):
+#         if not self.settings:
+#             self._setup()
+#         try:
+#             getattr(self.settings, item)
+#         except AttributeError:
+#             msg = '{} is not exist'.format(item)
+#             raise AttributeError(msg)
+#
+#
+# settings = Settings()
+from third_part.flask_settings import settings
 
 
 DEFAULTS = {

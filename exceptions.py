@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 import math
 from . import status
 import six
+from .compat import unicode_to_repr
 
 
 
@@ -57,38 +58,41 @@ def _get_full_details(detail):
         'code': detail.code
     }
 
-# class ErrorDetail(six.text_type):
-#     """
-#     A string-like object that can additionally have a code.
-#     """
-#     code = None
-#
-#     def __new__(cls, string, code=None):
-#         self = super(ErrorDetail, cls).__new__(cls, string)
-#         self.code = code
-#         return self
-#
-#     def __eq__(self, other):
-#         r = super(ErrorDetail, self).__eq__(other)
-#         try:
-#             return r and self.code == other.code
-#         except AttributeError:
-#             return r
-#
-#     def __ne__(self, other):
-#         return not self.__eq__(other)
-#
-#     def __repr__(self):
-#         return unicode_to_repr('ErrorDetail(string=%r, code=%r)' % (
-#             six.text_type(self),
-#             self.code,
-#         ))
-#
-#     def __hash__(self):
-#         return hash(str(self))
+
+class ErrorDetail(six.text_type):
+    """
+    A string-like object that can additionally have a code.
+    """
+    code = None
+
+    def __new__(cls, string, code=None):
+        self = super(ErrorDetail, cls).__new__(cls, string)
+        self.code = code
+        return self
+
+    def __eq__(self, other):
+        r = super(ErrorDetail, self).__eq__(other)
+        try:
+            return r and self.code == other.code
+        except AttributeError:
+            return r
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return unicode_to_repr('ErrorDetail(string=%r, code=%r)' % (
+            six.text_type(self),
+            self.code,
+        ))
+
+    def __hash__(self):
+        return hash(str(self))
+
 
 def _get_error_details(detail, code):
     return detail
+
 
 class APIException(Exception):
     """
